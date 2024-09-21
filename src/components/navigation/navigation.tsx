@@ -1,8 +1,9 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import Box from "@mui/material/Box";
 import { navigations } from "./navigation.data";
 import { Link } from "@mui/material";
 import { useLocation } from "react-router-dom";
+import metamask from '@/utils/connect-wallet'
 
 type NavigationData = {
   path: string;
@@ -12,6 +13,25 @@ type NavigationData = {
 const Navigation: FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const [connected, setConnected] = useState(false)
+  const [address, setAddress] = useState('')
+
+  const connectWallet = async () => {
+    if (!connected){
+      console.log('connect')
+      const address = await metamask.connect()
+      setConnected(true)
+      setAddress(address)
+      return
+    }
+    else{
+      console.log('disconnect')
+      await metamask.disconnect()
+      setConnected(false)
+      setAddress('')
+      return
+    }
+  }
 
   return (
     <Box
@@ -84,8 +104,9 @@ const Navigation: FC = () => {
           borderRadius: "6px",
           backgroundColor: "#00dbe3"
         }}
+        onClick={connectWallet}
       >
-        Connect Wallet
+        {connected ? "Disconnect Wallet" : "Connect Wallet"}
       </Box>
     </Box>
   );
